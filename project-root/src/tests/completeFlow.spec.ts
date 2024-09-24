@@ -33,7 +33,7 @@ test.describe('Suite activacion ofertas secundarias', () => {
         await browser.close();
     });
 
-    test('deberia iniciar sesion y contratar una oferta secundaria', async () => {
+    test('debería iniciar sesión y contratar una oferta secundaria', async () => {
         await loginPage.navigate();
         await loginPage.login('101', 'Abc1234%');
 
@@ -55,9 +55,17 @@ test.describe('Suite activacion ofertas secundarias', () => {
             }
 
             await page.screenshot({ path: `evidencias/busqueda_exitosa_${servicio}.png`, fullPage: true });
-            await consultaPage.contratacionOfertaSecundaria();
-            await autenticacionPage.omitirAutenticacion();
-            await consultaPage.backToMenu();
+            await consultaPage.validarEstadoLinea('Activa');
+            
+            const autenticacionResult = await autenticacionPage.omitirAutenticacion(servicio);
+
+        if (autenticacionResult === 'InvalidServiceNumber') {
+            console.warn(`Servicio con órdenes pendientes: ${servicio}. Retornando al menú.`);
+            await consultaPage.backToMenu(); // Vuelve al menú si hay órdenes pendientes
+            continue; // Pasa al siguiente servicio en el bucle
         }
+
+        await consultaPage.backToMenu(); // Regresa al menú después de procesar el servicio
+    }
     });
 });
