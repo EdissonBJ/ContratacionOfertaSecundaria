@@ -2,15 +2,21 @@ import { test, expect, chromium } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { MenuPage } from '../pages/MenuPage';
 import { ConsultaPage } from '../pages/ConsultaPage';
-import fs from 'fs';
+import * as fs from 'fs';
+import * as path from 'path'; 
 import { AutenticacionPage } from '../pages/AutenticacionPage';
+import { DescontratacionPage } from '../pages/DescontratacionPage';
 
-const data = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+
+// Usamos path para construir la ruta absoluta al archivo JSON
+const dataPath = path.resolve(__dirname, '../data/data.json');
+const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+
 
 test.describe('Suite activacion ofertas secundarias', () => {
 
     let browser, context, page;
-    let loginPage, menuPage, consultaPage, autenticacionPage;
+    let loginPage, menuPage, consultaPage, autenticacionPage, descontratacionPage;
 
     test.beforeAll(async () => {
         browser = await chromium.launch({ headless: true, args: ['--ignore-certificate-errors'] });
@@ -23,6 +29,7 @@ test.describe('Suite activacion ofertas secundarias', () => {
         menuPage = new MenuPage(page);
         consultaPage = new ConsultaPage(page);
         autenticacionPage = new AutenticacionPage(page);
+        descontratacionPage = new DescontratacionPage(page);
     });
 
     test.afterEach(async () => {
@@ -33,6 +40,7 @@ test.describe('Suite activacion ofertas secundarias', () => {
         await browser.close();
     });
 
+    
     test('debería iniciar sesión y contratar una oferta secundaria', async () => {
         await loginPage.navigate();
         await loginPage.login('101', 'Abc1234%');
@@ -56,14 +64,16 @@ test.describe('Suite activacion ofertas secundarias', () => {
 
             await page.screenshot({ path: `evidencias/busqueda_exitosa_${servicio}.png`, fullPage: true });
             await consultaPage.validarEstadoLinea('Activa');
-            
+                        
             const autenticacionResult = await autenticacionPage.omitirAutenticacion(servicio);
-
+           
         if (autenticacionResult === 'InvalidServiceNumber') {
             console.warn(`Servicio con órdenes pendientes: ${servicio}. Retornando al menú.`);
             await consultaPage.backToMenu(); // Vuelve al menú si hay órdenes pendientes
             continue; // Pasa al siguiente servicio en el bucle
         }
+
+        await descontratacionPage.validarOferta("6823");
 
         await consultaPage.backToMenu(); // Regresa al menú después de procesar el servicio
     }
