@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path'; 
 import { AutenticacionPage } from '../pages/AutenticacionPage';
 import { DescontratacionPage } from '../pages/DescontratacionPage';
+import {OfertaComplementariaCambio} from '../pages/OfertaComplementariaCambio';
 
 
 // Usamos path para construir la ruta absoluta al archivo JSON
@@ -16,7 +17,7 @@ const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 test.describe('Suite activacion ofertas secundarias', () => {
 
     let browser, context, page;
-    let loginPage, menuPage, consultaPage, autenticacionPage, descontratacionPage;
+    let loginPage, menuPage, consultaPage, autenticacionPage, descontratacionPage, ofertaComplementariaCambio;
 
     test.beforeAll(async () => {
         browser = await chromium.launch({ headless: true, args: ['--ignore-certificate-errors'] });
@@ -30,6 +31,7 @@ test.describe('Suite activacion ofertas secundarias', () => {
         consultaPage = new ConsultaPage(page);
         autenticacionPage = new AutenticacionPage(page);
         descontratacionPage = new DescontratacionPage(page);
+        ofertaComplementariaCambio = new OfertaComplementariaCambio(page);
     });
 
     test.afterEach(async () => {
@@ -73,9 +75,10 @@ test.describe('Suite activacion ofertas secundarias', () => {
             continue; // Pasa al siguiente servicio en el bucle
         }
 
-        await descontratacionPage.validarOferta("6823");
+        await descontratacionPage.validarOferta("1339");
+        await ofertaComplementariaCambio.validacionPCO();
 
-        await consultaPage.backToMenu(); // Regresa al menú después de procesar el servicio
+        //await consultaPage.backToMenu(); // Regresa al menú después de procesar el servicio
     }
     });
 });
