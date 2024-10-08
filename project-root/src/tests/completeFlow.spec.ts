@@ -7,7 +7,7 @@ import * as path from 'path';
 import { AutenticacionPage } from '../pages/AutenticacionPage';
 import { DescontratacionPage } from '../pages/DescontratacionPage';
 import {OfertaComplementariaCambio} from '../pages/OfertaComplementariaCambio';
-
+import { ConfirmacionOrden } from '../pages/ConfirmacionOrden';
 
 // Usamos path para construir la ruta absoluta al archivo JSON
 const dataPath = path.resolve(__dirname, '../data/data.json');
@@ -17,7 +17,7 @@ const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 test.describe('Suite activacion ofertas secundarias', () => {
 
     let browser, context, page;
-    let loginPage, menuPage, consultaPage, autenticacionPage, descontratacionPage, ofertaComplementariaCambio;
+    let loginPage, menuPage, consultaPage, autenticacionPage, descontratacionPage, ofertaComplementariaCambio, confirmacionOrden;
 
     test.beforeAll(async () => {
         browser = await chromium.launch({ headless: true, args: ['--ignore-certificate-errors'] });
@@ -32,6 +32,7 @@ test.describe('Suite activacion ofertas secundarias', () => {
         autenticacionPage = new AutenticacionPage(page);
         descontratacionPage = new DescontratacionPage(page);
         ofertaComplementariaCambio = new OfertaComplementariaCambio(page);
+        confirmacionOrden = new ConfirmacionOrden(page);
     });
 
     test.afterEach(async () => {
@@ -78,7 +79,13 @@ test.describe('Suite activacion ofertas secundarias', () => {
         await descontratacionPage.validarOferta("1339");
         await ofertaComplementariaCambio.validacionPCO();
 
-        //await consultaPage.backToMenu(); // Regresa al menú después de procesar el servicio
+        // Paso clave: Capturar, mostrar y validar el número de orden
+        const orderId = await confirmacionOrden.getOrderId();
+        await confirmacionOrden.printOrderId(orderId);
+        await confirmacionOrden.validateOrderId(orderId);
+
+
+        await consultaPage.backToMenu(); // Regresa al menú después de procesar el servicio
     }
     });
 });

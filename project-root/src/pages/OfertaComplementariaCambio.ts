@@ -5,10 +5,12 @@ export class OfertaComplementariaCambio {
 
     private validateOffert2: Locator;
     private pcoValidate: Locator;
+    private popupPcoError: Locator;
     private popUpPco: Locator;
     private subscriberOffert: Locator;
     private downType: Locator;
     private sendOrder: Locator;
+
 
     constructor(page: Page) {
         page = page;
@@ -20,8 +22,7 @@ export class OfertaComplementariaCambio {
         this.subscriberOffert = page.frameLocator('div:nth-child(5) > iframe').getByText('Suscribir');
         // Confirmación de baja
         this.downType = page.frameLocator('div:nth-child(5) > iframe').locator('#paymentType_tt').getByRole('insertion').first();
-        this.sendOrder = page.frameLocator('div:nth-child(5) > iframe').getByText('Vista previa del contrato')
-        //frameLocator('div:nth-child(5) > iframe').getByText('Enviar', { exact: true });
+        this.sendOrder = page.frameLocator('div:nth-child(5) > iframe').getByText('Enviar', { exact: true });
 
 
 
@@ -33,8 +34,7 @@ export class OfertaComplementariaCambio {
         
         await this.pcoValidate.waitFor({ timeout: 40000 });
         await this.pcoValidate.click();
-        
-        
+                
         // Esperar la ventana emergente y hacer clic en OK
         await this.popUpPco.waitFor();
         await this.popUpPco.click();
